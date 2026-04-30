@@ -1,165 +1,221 @@
-# smart_health_app
+# Smart Health App
 
-A new Flutter project.
+A Flutter iOS app for AI-powered patient health monitoring.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Smart Health connects Apple Watch wearable data, hospital clinical records, and Google Gemini AI in one place for patients. Patients can log in, sync their Apple Watch, view their clinical history, track medications, log symptoms, and chat with an AI health assistant.
 
-# Smart Health App
+## Features
 
-The Smart Health App is a Flutter-based mobile application that integrates Fitbit and Apple HealthKit to collect patient vitals and sync them with the eHospital backend. Patients can log in, connect wearable devices, and view daily health metrics such as heart rate, steps, calories, and sleep.
+Email-based login authenticated against the eHospital backend
 
-# Features
-
-Email-based login validated with the eHospital backend
-
-Stores patient_id securely using SharedPreferences
-
-Fitbit OAuth integration
-
-Heart rate
-
-Steps
-
-Calories
-
-Sleep
+Stores patient_id, username, and email using SharedPreferences
 
 Apple HealthKit integration (iOS)
+- Heart rate
+- Steps
+- Active energy burned
+- Sleep
 
-Heart rate
+Automatic sync of wearable vitals to the eHospital backend
 
-Steps
+Clinical records from the hospital API
+- ECG results
+- Lab tests
+- Diabetes and heart disease risk scores
+- Stroke prediction
+- Diagnosis history
 
-Sleep
+AI health insights using Google Gemini
 
-Active energy
+Conversational AI assistant with real patient data as context
 
-Automatic sync of vitals with the backend
+Medication tracker with daily reset
 
-Dashboard to choose Fitbit or Apple Health
+Symptom logger with severity rating (1–5)
 
-Clean vitals display with timestamps and summaries
+Health goals with progress bars for steps, sleep, and calories
 
-# Tech Stack
+BMI calculator
+
+Week-over-week trend comparison with charts
+
+Emergency SOS with one-tap 911 call and emergency contacts
+
+Patient profile pulled from hospital records
+
+## Tech Stack
 
 Flutter (Dart)
 
-Fitbit Web API
-
 Apple HealthKit
 
-REST API (eHospital backend)
+Google Gemini API
+
+REST API (eHospital backend on AWS App Runner)
 
 SharedPreferences
 
-Material Design 3
+fl_chart
 
-# Project Structure
+flutter_local_notifications
+
+pdf + printing
+
+Python (data pipeline)
+
+## Project Structure
+
+```
 lib/
   Screens/
     login_screen.dart
     dashboard_screen.dart
     vitals_screen.dart
     vitals_history_screen.dart
+    health_insights_screen.dart
+    trend_comparison_screen.dart
+    device_connection_screen.dart
+    health_assistant_screen.dart
+    medication_tracker_screen.dart
+    symptom_logger_screen.dart
+    health_goals_screen.dart
+    bmi_calculator_screen.dart
+    emergency_sos_screen.dart
+    profile_screen.dart
+    settings_screen.dart
 
   Services/
-    fitbit_service.dart
-    apple_health_service.dart
     e_hospital_auth_service.dart
-    e_hospital_service.dart
+    apple_health_service.dart
+
+  config/
+    api_config.dart  (gitignored — create manually)
 
   ui/
     app_theme.dart
 
-# pubspec.yaml
+scripts/
+  data_pipeline.py
+  requirements.txt
 
-# Running the App
+mvp.ipynb
+pubspec.yaml
+```
+
+## Running the App
+
 Install dependencies
+```
 flutter pub get
+```
+
+Create the config file
+
+lib/config/api_config.dart is gitignored. Create it manually:
+```dart
+class ApiConfig {
+  static const String baseUrl = 'https://aetab8pjmb.us-east-1.awsapprunner.com';
+  static const String geminiApiKey = 'YOUR_GEMINI_API_KEY';
+}
+```
 
 iOS Setup and Xcode Commands
+
 Install CocoaPods
+```
 sudo gem install cocoapods
+```
 
 Install iOS pods
+```
 cd ios
 pod install
 cd ..
+```
 
 Open Xcode workspace
+```
 open ios/Runner.xcworkspace
-
+```
 
 In Xcode:
-
-Select your Team
-
-Ensure the Bundle Identifier is valid
-
-Enable HealthKit capability
-
-Ensure Deployment Target matches Flutter
+- Select your Team
+- Ensure the Bundle Identifier is valid
+- Enable HealthKit capability
+- Ensure Deployment Target is iOS 14.0+
 
 Run the app
+```
 flutter run
+```
 
-# Backend Requirements
-POST /login
+Note: HealthKit does not work in the simulator. Use a physical iPhone paired with an Apple Watch.
 
-Returns:
+## Backend API
 
-patient_id
+Base URL: https://aetab8pjmb.us-east-1.awsapprunner.com
 
-POST /vitals_history
+GET /table/<table_name>?patient_id=<id>
 
-Fields:
+Tables:
+- users
+- wearable_vitals
+- vitals_history
+- ecg
+- lab_tests
+- diabetes_analysis
+- heart_disease_analysis
+- stroke_prediction
+- diagnosis
 
-avg heart rate
+## Data Pipeline
 
-latest heart rate
+Fetches all clinical tables and exports a merged CSV for analysis.
+```
+cd scripts
+pip install -r requirements.txt
+python data_pipeline.py
+```
 
-steps
+Output: Patient_20_Integrated_Data.csv
 
-calories
+## Known Issues and Fixes
 
-sleep
-
-timestamp
-
-source (fitbit or apple)
-
-# Known Issues and Fixes
 iOS build errors
 
 Fixed by deleting:
-
+```
 ios/Pods/
 ios/Podfile.lock
 ios/build/
-
-
+```
 Then reinstalling pods.
 
-Fitbit token expiry
+HealthKit sync delay
 
-Handled using reconnection flow and validation.
+A few seconds delay is expected. The app reads from HealthKit, uploads to the API, then fetches back.
 
 Apple Health permissions
 
-Handled with permission checks and fallback.
+Handled with permission checks on launch. If denied, vitals will not sync.
 
-Backend formatting issues
+## Future Improvements
 
-Timestamp and calorie formats standardized.
+Android support
 
-# Future Improvements
+Background HealthKit sync with push notifications
 
-Vitals history charts
+Encrypted local storage
 
-Notifications for abnormal vitals
+Clinician-facing dashboard
 
-Dark mode
+Predictive health alerts
 
-Multi-user support
+Medication reminders with AI guidance
+
+## Disclaimer
+
+This app is for informational purposes only. It is not a medical device and does not provide medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making any health decisions.
+
